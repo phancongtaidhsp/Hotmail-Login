@@ -1,5 +1,5 @@
 const SendMail = require("./SendMail")
-const getCode = require("./GetCode");
+const getLink = require("./GetLink");
 
 const action = async (context, token, page, record) => {
   const [mail, pass, newpass] = record;
@@ -16,7 +16,7 @@ const action = async (context, token, page, record) => {
 
     if (sendMail === "success") {
       await page.waitFor(3000)
-      urlId = await getCode(mail, pass)
+      urlId = await getLink(mail, pass)
       console.log('urlId...');
       console.log(urlId);
       if (urlId) {
