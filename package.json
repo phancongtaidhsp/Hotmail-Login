@@ -1,0 +1,41 @@
+{
+  "name": "electronicjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron main.js",
+    "dist": "electron-builder"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^8.2.3",
+    "electron-builder": "^22.5.1",
+    "electron-rebuild": "^2.0.1"
+  },
+  "build": {
+    "appId": "com.ipenywis.app",
+    "productName": "ID Apple - Change Password Hot Mail (2022. v1)",
+    "target": "nsis",
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false
+    },
+    "extraResources": [
+      "./extraResources/**"
+    ]
+  },
+  "dependencies": {
+    "2captcha": "^3.0.5",
+    "axios": "^0.26.1",
+    "delay": "^4.4.0",
+    "fs-extra": "^9.0.0",
+    "puppeteer": "^3.3.0",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-recaptcha": "^3.6.6",
+    "puppeteer-extra-plugin-stealth": "^2.4.0",
+    "xlsx": "^0.18.5"
+  }
+}

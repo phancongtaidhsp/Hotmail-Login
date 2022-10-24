@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>ID Apple - Change Password Hot Mail (2022. v1)</title>
+  <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./css/bootstrap.css">
+</head>
+
+<body>
+  <h1 class="title-app">ID Apple - Change Password Hot Mail (2022. v1)</h1>
+  <h2 class="note">Nhập proxy key trước khi start</h2>
+  <div id="thongbao" class="alert alert-success hidden" role="alert">
+    Đã chạy xong file data
+  </div>
+  <div class="wr">
+    <button id="start" type="button" class="button btn btn-primary">Start</button>
+    <button id="pause" class="button btn btn-warning">Tạm dừng</button>
+    <button id="result" class="button btn btn-info">Xuất kết quả</button>
+    <input type="button" id="btn-createfile" value="Upload files">
+    <div class="row">
+      <div class="col">
+        <input id="apiKeyCaptcha" type="text" placeholder="Api key 2captcha">
+      </div>
+    </div>
+    <div class="mr"></div>
+    <div class="row">
+      <div class="col">
+        <h3 style="margin: 0;">Màn 1:</h3>
+        <p style="margin: 0;">Proxy key1: </p>
+        <input type="text" id="proxyKey1">
+        <div class="step">
+          <span>Success: </span>
+          <span id="step1">0</span>
+        </div>
+        <div class="total">
+          <span>Total: </span>
+          <span id="total1">0</span>
+        </div>
+      </div>
+      <div class="col">
+        <h3 style="margin: 0;">Màn 2:</h3>
+        <p style="margin: 0;">Proxy key2: </p>
+        <input type="text" id="proxyKey2">
+        <div class="step">
+          <span>Success: </span>
+          <span id="step2">0</span>
+        </div>
+        <div class="total">
+          <span>Total: </span>
+          <span id="total2">0</span>
+        </div>
+      </div>
+    </div>
+    <div class="mr"></div>
+    <div class="row">
+      <div class="col">
+        <h3 style="margin: 0;">Màn 3:</h3>
+        <p style="margin: 0;">Proxy key3: </p>
+        <input type="text" id="proxyKey3">
+        <div class="step">
+          <span>Success: </span>
+          <span id="step3">0</span>
+        </div>
+        <div class="total">
+          <span>Total: </span>
+          <span id="total4">0</span>
+        </div>
+      </div>
+
+      <div class="col">
+        <h3 style="margin: 0;">Màn 4:</h3>
+        <p style="margin: 0;">Proxy key4: </p>
+        <input type="text" id="proxyKey4">
+        <div class="step">
+          <span>Success: </span>
+          <span id="step4">0</span>
+        </div>
+        <div class="total">
+          <span>Total: </span>
+          <span id="total4">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ul class="info">
+    <li>Không được mở các file excel khi chạy. (file data, output, ketqua)</li>
+    <li>file data format theo 'MailComLogin' 'PassMailComLogin' 'ListMailCom'</li>
+    <li>Click "Xuất kết quả" để xuất ra những con đã chạy thành công.</li>
+  </ul>
+  <script>
+    require('./app.js');
+    const electron = require('electron');
+    const { ipcRenderer } = electron;
+    function showThongBao(type, message) {
+      document.getElementById('thongbao').innerText = message;
+      document.getElementById('thongbao').className = `alert ${type}`;
+      setTimeout(() => document.getElementById('thongbao').classList.add('hidden'), 3000);
+    }
+    ipcRenderer.on('total', function (e, total, thread) {
+      document.getElementById(`total${thread}`).innerText = total;
+    })
+    ipcRenderer.on('step', function (e, step, thread) {
+      if (step === 0) document.getElementById(`step${thread}`).innerText = '0';
+      else document.getElementById(`step${thread}`).innerText = parseInt(document.getElementById(`step${thread}`).innerText) + 1;
+    })
+    ipcRenderer.on('disable', function (e, isDisable) {
+      document.getElementById('start').disabled = isDisable;
+      document.getElementById('result').disabled = isDisable;
+    })
+    ipcRenderer.on('done', function (e, isDone) {
+      if (isDone) {
+        showThongBao('alert-success', 'Đã chạy hết file data')
+      }
+    })
+    ipcRenderer.on('uploadfile', function (e, isSuccess) {
+      if (isSuccess) {
+        showThongBao('alert-success', 'Upload file thành công')
+      } else {
+        showThongBao('alert-success', 'Upload file thất bại')
+      }
+    })
+    ipcRenderer.on('failProxyKey', function (e, number) {
+      showThongBao('alert-danger', `proxy key ${number} không hợp lệ`)
+    })
+    ipcRenderer.on('hetmaillogin', function (e, number) {
+      showThongBao('alert-danger', `Hết MailCom login`)
+    })
+    ipcRenderer.on('result', function (e, isSuccess) {
+      if (isSuccess) {
+        showThongBao('alert-success', 'Xuất kết quả thành công')
+      }
+      else {
+        showThongBao('alert-danger', 'Xuất kết quả thất bại')
+      }
+    })
+    ipcRenderer.on('checkfiles', function (e, filename) {
+      showThongBao('alert-danger', `Thiếu file ${filename}`)
+    })
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,39 @@
+
+.title-app {
+  text-align: center;
+  color: #F95B0B;
+}
+.note{
+  text-align: center;
+}
+.mr {
+  margin-bottom: 20px;
+}
+.step{
+  font-size: 30px;
+  color: #015c24;
+}
+.total{
+  font-size: 30px;
+  color: #F95B0B;
+}
+.current{
+  font-size: 30px;
+  color: #609BEB;
+}
+.wr{
+  margin: 0 30px 30px 30px;
+}
+.value{
+  margin-top: 30px;
+  margin-left: 20px;
+}
+.button{
+  margin: 0 20px 20px 20px;
+}
+.hidden{
+  visibility: hidden;
+}
+.info{
+  margin-left: 20px;
+}
