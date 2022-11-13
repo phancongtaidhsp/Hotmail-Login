@@ -41,7 +41,11 @@ const getLink = (mail, pass) => {
           resolve(null)
         });
         return connection.openBox('INBOX').then(async function () {
-          var searchCriteria = ['1:20'];
+          var delay = 2 * 24 * 3600 * 1000;
+          var yesterday = new Date();
+          yesterday.setTime(Date.now() - delay);
+          yesterday = yesterday.toISOString();
+          var searchCriteria = [['SINCE', yesterday]];
           var fetchOptions = {
             bodies: ['HEADER', 'TEXT', ''],
           };
@@ -58,26 +62,25 @@ const getLink = (mail, pass) => {
               urlIds.push({ url: urls?.[0], date: mail.date })
             }
           }
-          if(urlIds.length > 0) {
+          if (urlIds.length > 0) {
             sortBy(urlIds, ['date'])
             reverse(urlIds)
             let newestUrl = urlIds[0]
-            const d = new Date();
-            var myStartDate = new Date(d.getTime() - 5 * 60000);
-            if(newestUrl.date.getTime() > myStartDate.getTime()) {
-              resolve(newestUrl.url)
-            } else {
-              resolve(null)
-            }
+            resolve(newestUrl.url)
           } else {
             resolve(null)
           }
-        }).catch(e => resolve(null));
-      }).catch(e => resolve(null));
+        }).catch(e => { resolve(null) });
+      }).catch(e => { resolve(null) });
     } catch (error) {
       resolve(null)
     }
   })
 }
 
-module.exports = getLink;
+(async () => {
+  let link = await getLink("anica.grinda@t-online.de", "mustafa19");
+  console.log(link);
+})()
+
+// module.exports = getLink;
