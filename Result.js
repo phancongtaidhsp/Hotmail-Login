@@ -57,15 +57,12 @@ const result = (thread) => {
 
   if(dtDataFiltered.length < 1){
     dtDataFiltered.push({
-      'id': '',
-      'password': '',
+      'mail': '',
+      'pass': '',
+      'newpass': '',
       'status': '',
-      'question1': '',
-      'answer1': '',
-      'question2': '',
-      'answer2': '',
-      'question3': '',
-      'answer3': '',
+      'proxy': '',
+      "note": ''
     })
   }
   

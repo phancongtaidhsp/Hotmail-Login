@@ -1,44 +1,79 @@
 var imaps = require('imap-simple');
+const { sortBy, reverse } = require('lodash');
 const simpleParser = require('mailparser').simpleParser;
 const _ = require('lodash');
+const contents = require("./imap")
+
+function getImapInfo(mail) {
+  const arr = contents.split(/\r?\n/)
+  const extMail = mail.split("@")[1];
+  for (const info of arr) {
+    const [ext, host, port] = info.split("|").slice(1);
+    if (extMail === ext) {
+      return [host, port]
+    }
+  }
+}
 
 const getLink = (mail, pass) => {
+
+  let imapinfo = getImapInfo(mail);
+  if (!imapinfo) {
+    return "no imap";
+  }
+  let [host, port] = imapinfo;
+
   return new Promise((resolve) => {
     var config = {
       imap: {
         user: mail,
         password: pass,
-        host: 'imap-mail.outlook.com',
-        port: 993,
+        host,
+        port,
         tls: true,
         authTimeout: 5000
       }
     };
     try {
       imaps.connect(config).then(function (connection) {
-        return connection.openBox('INBOX').then(function () {
-          var searchCriteria = ['1:5'];
+        connection.on("error", function () {
+          console.log("An error occured. This should handle it?");
+          resolve(null)
+        });
+        return connection.openBox('INBOX').then(async function () {
+          var searchCriteria = ['1:20'];
           var fetchOptions = {
             bodies: ['HEADER', 'TEXT', ''],
           };
-          return connection.search(searchCriteria, fetchOptions).then(function (messages) {
-            messages.forEach(function (item) {
-              var all = _.find(item.parts, { "which": "" })
-              var id = item.attributes.uid;
-              var idHeader = "Imap-Id: " + id + "\r\n";
-              simpleParser(idHeader + all.body, (err, mail) => {
-                // access to the whole mail object
-                let regex = /https:\/\/iforgot.apple.com\/verify\/email\?(\d|\w|=|-)+/
-                let urls = regex.exec(mail.html)
-                if (urls?.[0]) {
-                  resolve(urls?.[0])
-                }
-                resolve(null)
-              });
-            });
-          });
-        });
-      });
+          let urlIds = [];
+          let messages = await connection.search(searchCriteria, fetchOptions)
+          for (const item of messages) {
+            var all = _.find(item.parts, { "which": "" })
+            var id = item.attributes.uid;
+            var idHeader = "Imap-Id: " + id + "\r\n";
+            let mail = await simpleParser(idHeader + all.body)
+            let regex = /https:\/\/iforgot.apple.com\/verify\/email\?(\d|\w|=|-)+/
+            let urls = regex.exec(mail.html)
+            if (urls?.[0]) {
+              urlIds.push({ url: urls?.[0], date: mail.date })
+            }
+          }
+          if(urlIds.length > 0) {
+            sortBy(urlIds, ['date'])
+            reverse(urlIds)
+            let newestUrl = urlIds[0]
+            const d = new Date();
+            var myStartDate = new Date(d.getTime() - 5 * 60000);
+            if(newestUrl.date.getTime() > myStartDate.getTime()) {
+              resolve(newestUrl.url)
+            } else {
+              resolve(null)
+            }
+          } else {
+            resolve(null)
+          }
+        }).catch(e => resolve(null));
+      }).catch(e => resolve(null));
     } catch (error) {
       resolve(null)
     }

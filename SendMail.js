@@ -7,11 +7,15 @@ const SendMail = async (context, captchaKey, page, mail) => {
   let captchaSolved = true;
 
   try {
-    await page.goto('https://iforgot.apple.com/password/verify/appleid', { timeout: 60000, waitUntil: 'networkidle2' });
+    await page.goto('https://iforgot.apple.com/password/verify/appleid', { timeout: 30000 });
   } catch (error) {
-    await page.close()
-    page = await context.newPage();
-    await page.goto('https://iforgot.apple.com/password/verify/appleid', { timeout: 60000, waitUntil: 'networkidle2' });
+    try {
+      await page.close()
+      page = await context.newPage();
+      await page.goto('https://iforgot.apple.com/password/verify/appleid', { timeout: 30000 });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
 
@@ -58,7 +62,7 @@ const SendMail = async (context, captchaKey, page, mail) => {
       if (title) {
         let titleText = await title.evaluate(el => el.textContent)
         if (titleText.includes("Confirm your phone number.")) {
-          return Promise.resolve("Confirm your phone number")
+          return Promise.resolve("fail")
         }
       }
       if (subtext) {
@@ -92,10 +96,8 @@ const SendMail = async (context, captchaKey, page, mail) => {
 
   let arrMailReal = mail.split("@");
 
-  if (arrMailReal?.[0]?.[1] && arrMailText?.[0]?.[1]) {
-    let arrMailReal1 = arrMailReal[0][1].split(".");
-    let arrMailText1 = arrMailText[0][1].split(".");
-    if (mailElText[0].toLowerCase() === mail[0].toLowerCase() && arrMailReal1?.[0]?.[1]?.toLowerCase() === arrMailText1?.[0]?.[1]?.toLowerCase()) {
+  if (arrMailText?.[0]?.[0] && arrMailReal?.[0]?.[0]) {
+    if (arrMailReal?.[0]?.[0]?.toLowerCase() === arrMailText?.[0]?.[0].toLowerCase() && arrMailReal?.[1]?.[0]?.toLowerCase() === arrMailText?.[1]?.[0].toLowerCase()) {
       return Promise.resolve("success")
     }
   }
