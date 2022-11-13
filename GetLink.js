@@ -41,7 +41,7 @@ const getLink = (mail, pass) => {
           resolve(null)
         });
         return connection.openBox('INBOX').then(async function () {
-          var delay = 2 * 24 * 3600 * 1000;
+          var delay = 24 * 3600 * 1000;
           var yesterday = new Date();
           yesterday.setTime(Date.now() - delay);
           yesterday = yesterday.toISOString();
@@ -78,9 +78,4 @@ const getLink = (mail, pass) => {
   })
 }
 
-(async () => {
-  let link = await getLink("anica.grinda@t-online.de", "mustafa19");
-  console.log(link);
-})()
-
-// module.exports = getLink;
+module.exports = getLink;
