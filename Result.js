@@ -43,13 +43,34 @@ const result = (thread) => {
     XLSX.writeFile(wbf1,`${__dirname}/../extraResources/man${thread}\\fail${thread}.xlsx`);
   }
 
+
+  var dataRestoreImap = dataOutput.filter(item => {
+    if(item['status'] == 'restoreimap') return true;
+    else return false;
+  })
+
+  if(dataRestoreImap.length > 0){
+    var wbRestoreImap = XLSX.readFile(`${__dirname}/../extraResources/man${thread}\\restoreimap${thread}.xlsx`);
+
+    var fnRestoreImap = wbRestoreImap.SheetNames[0];
+    /* Get worksheet */
+    var wsRestoreImap = wbRestoreImap.Sheets[fnRestoreImap];
+    var dtRestoreImap = XLSX.utils.sheet_to_json(wsRestoreImap);
+    dtRestoreImap.push(...dataRestoreImap);
+    var wbf1 = XLSX.utils.book_new();
+    var wsf1 = XLSX.utils.json_to_sheet(dtRestoreImap);
+    XLSX.utils.book_append_sheet(wbf1, wsf1, "restoreimap");
+    XLSX.writeFile(wbf1,`${__dirname}/../extraResources/man${thread}\\restoreimap${thread}.xlsx`);
+  }
+
+
   var wbData = XLSX.readFile(`${__dirname}/../extraResources/man${thread}\\data${thread}.xlsx`);
   var fnData = wbData.SheetNames[0];
   /* Get worksheet */
   var wsData = wbData.Sheets[fnData];
   var dtData = XLSX.utils.sheet_to_json(wsData);
   var dataFail = dataOutput.filter(item => {
-    if(item['status'] !== 'done' && item['status'] !== 'fail') return true;
+    if(item['status'] !== 'done' && item['status'] !== 'fail' && item['status'] !== "restoreimap") return true;
     else return false;
   })
   var dtDataFiltered = dtData.slice(dataOutput.length);

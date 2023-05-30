@@ -13,7 +13,7 @@ const getData = require('./spreadsheet');
 const GetTotal = require('./GetTotal');
 const ExportData = require('./ExportData');
 const exportResult = require('./Result');
-const { checkKeyProxy, getNewIp } = require('./proxy');
+const { checkKeyProxyTmp, getNewIpTmp, checkKeyProxy, getNewIp } = require('./proxy');
 var exec =  require('child_process').exec;
 
 
@@ -45,7 +45,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-const run = async function (thread, proxyKey, token) {
+const run = async function (thread, proxyKey, token, proxyType) {
   let proxy = null;
   let browser = null;
   let page = null;
@@ -80,6 +80,10 @@ const run = async function (thread, proxyKey, token) {
       y: 500
     }
   }
+  let getNewIPFunction = getNewIpTmp;
+  if(proxyType === "tinsoftproxy") {
+    getNewIPFunction = getNewIp;
+  }
   executableBrowserPath = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
   let browser_pid = null;
   let cmdKill = 'taskkill /F /T /PID '
@@ -96,7 +100,9 @@ const run = async function (thread, proxyKey, token) {
           resolve(true)
         }, 90000);
         try {
-          let newProxy = await getNewIp(proxyKey)
+          let newProxy = await getNewIPFunction(proxyKey)
+          console.log("newProxy....");
+          console.log(newProxy);
           if (proxy !== newProxy?.proxy) {
             proxy = newProxy?.proxy
           }
@@ -190,26 +196,32 @@ function isFileExists(thread) {
   return false;
 }
 
-ipc.on('start', async function (event, token, key1, key2, key3, key4) {
+ipc.on('start', async function (event, token, key1, key2, key3, key4, proxyType) {
   electron.session.defaultSession.clearCache();
+  let checkProxyFunc = checkKeyProxyTmp;
+  if(proxyType === "tinsoftproxy") {
+    checkProxyFunc = checkKeyProxy;
+  }
   let checkproxykey1, checkproxykey2, checkproxykey3, checkproxykey4;
   let incompleteFile1 = isFileExists('1');
   let incompleteFile2 = isFileExists('2');
   let incompleteFile3 = isFileExists('3');
   let incompleteFile4 = isFileExists('4');
   if (key1) {
-    checkproxykey1 = await checkKeyProxy(key1)
+    checkproxykey1 = await checkProxyFunc(key1)
+    console.log('checkproxykey1');
+    console.log(checkproxykey1);
     if (checkproxykey1) {
-      run('1', key1, token).catch(e => console.log(e));
+      run('1', key1, token, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile1) {
     win.webContents.send('failProxyKey', 1);
     return
   }
   if (key2) {
-    checkproxykey2 = await checkKeyProxy(key2)
+    checkproxykey2 = await checkProxyFunc(key2)
     if (checkproxykey2) {
-      run('2', key2, token).catch(e => console.log(e));
+      run('2', key2, token, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile2) {
     win.webContents.send('failProxyKey', 2);
@@ -217,9 +229,9 @@ ipc.on('start', async function (event, token, key1, key2, key3, key4) {
   }
 
   if (key3) {
-    checkproxykey3 = await checkKeyProxy(key3)
+    checkproxykey3 = await checkProxyFunc(key3)
     if (checkproxykey3) {
-      run('3', key3, token).catch(e => console.log(e));
+      run('3', key3, token, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile3) {
     win.webContents.send('failProxyKey', 3);
@@ -227,9 +239,9 @@ ipc.on('start', async function (event, token, key1, key2, key3, key4) {
   }
 
   if (key4) {
-    checkproxykey4 = await checkKeyProxy(key4)
+    checkproxykey4 = await checkProxyFunc(key4)
     if (checkproxykey4) {
-      run('4', key4, token).catch(e => console.log(e));
+      run('4', key4, token, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile4) {
     win.webContents.send('failProxyKey', 4);

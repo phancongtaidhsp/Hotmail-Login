@@ -21,14 +21,14 @@ const action = async (context, token, page, record) => {
         console.log('urlId...');
         console.log(urlId);
         if(urlId === 'no imap' || urlId === 'fail') {
-          return Promise.resolve("fail")
+          return Promise.resolve("restoreimap")
         }
         if (urlId) {
           break;
         }
       }
       if (!urlId) {
-        return Promise.resolve("fail")
+        return Promise.resolve("restoreimap")
       }
     } else {
       return Promise.resolve(sendMail);

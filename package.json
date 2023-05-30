@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^21.2.3",
+    "electron": "^8.5.5",
     "electron-builder": "^22.5.1",
     "electron-rebuild": "^2.0.1"
   },
@@ -36,6 +36,7 @@
     "imap-simple": "^5.1.0",
     "lodash": "^4.17.21",
     "mailparser": "^3.5.0",
+    "moment": "^2.29.4",
     "puppeteer": "^13.0.1",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-recaptcha": "^3.6.6",
