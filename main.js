@@ -173,6 +173,7 @@ const run = async function (thread, proxyKey, token, proxyType) {
         resolve(true)
       })
     }
+    await browser.close();
   }
   else {
     win.webContents.send('done', true);
@@ -209,8 +210,6 @@ ipc.on('start', async function (event, token, key1, key2, key3, key4, proxyType)
   let incompleteFile4 = isFileExists('4');
   if (key1) {
     checkproxykey1 = await checkProxyFunc(key1)
-    console.log('checkproxykey1');
-    console.log(checkproxykey1);
     if (checkproxykey1) {
       run('1', key1, token, proxyType).catch(e => console.log(e));
     }
