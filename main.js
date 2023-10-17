@@ -45,11 +45,11 @@ app.on('window-all-closed', () => {
   }
 })
 
-const run = async function (thread, proxyKey, token, proxyType) {
+const run = async function (thread, proxyKey, proxyType) {
   let proxy = null;
   let browser = null;
   let page = null;
-  let context = null;
+  let page_tmp = null;
   let incompleteFile = isFileExists(thread);
   if (incompleteFile) {
     win.webContents.send('checkfiles', incompleteFile);
@@ -84,7 +84,7 @@ const run = async function (thread, proxyKey, token, proxyType) {
   if(proxyType === "tinsoftproxy") {
     getNewIPFunction = getNewIp;
   }
-  executableBrowserPath = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+  executableBrowserPath = 'C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe'
   let browser_pid = null;
   let cmdKill = 'taskkill /F /T /PID '
   if (st < end) {
@@ -95,45 +95,34 @@ const run = async function (thread, proxyKey, token, proxyType) {
       }
       await new Promise(async (resolve) => {
         let myTimeout = setTimeout(async () => {
-          console.log('>=90s');
+          console.log('>=900s');
           exec(cmdKill + browser_pid, (error, stdout, stderr) => { });
           resolve(true)
-        }, 90000);
+        }, 900000);
         try {
           let newProxy = await getNewIPFunction(proxyKey)
-          console.log("newProxy....");
-          console.log(newProxy);
           if (proxy !== newProxy?.proxy) {
             proxy = newProxy?.proxy
           }
           browser = await puppeteer.launch({
-            executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+            executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe',
             // executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
             headless: false,
             ignoreHTTPSErrors: true,
             ignoreDefaultArgs: ['--enable-automation'],
-            args: [`--window-size=600,450`, `--window-position=${position.x},${position.y}`,
+            args: [`--window-size=800,650`, `--window-position=${position.x},${position.y}`,
               '--disable-infobars',
+              '--disk-cache-size=0',
               '--ignore-certifcate-errors',
               '--ignore-certifcate-errors-spki-list',
-              '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"',
               `--proxy-server=${proxy}`
             ],
           });
           browser_pid = browser.process().pid;
-          context = await browser.createIncognitoBrowserContext();
-          page = await context.newPage();
-          const acceptBeforeUnload = dialog => dialog.type() === "beforeunload" && dialog.accept();
-          page.on("dialog", acceptBeforeUnload);
+          page = await browser.newPage();
+          page_tmp = await browser.newPage();
           try {
-            let obj = await Action(context, token, page, data[i]).catch(async (e) => {
-              console.log('catch1...');
-              console.log(e);
-              let result = [...data[i], 'restore', proxy];
-              ExportData(result, thread);
-              win.webContents.send('total', i + 1, thread);
-              await browser.close();
-            })
+            let obj = await Action(page_tmp, page, data[i]);
             if (Array.isArray(obj) && obj?.length > 0) {
               let result = [...data[i], 'done', proxy, ...obj];
               ExportData(result, thread);
@@ -150,8 +139,7 @@ const run = async function (thread, proxyKey, token, proxyType) {
             clearTimeout(myTimeout)
             resolve(true)
           } catch (error) {
-            console.log('catch...');
-            console.log(error);
+            console.log(error)
             let result = [...data[i], 'restore', proxy];
             ExportData(result, thread);
             win.webContents.send('total', i + 1, thread);
@@ -160,8 +148,6 @@ const run = async function (thread, proxyKey, token, proxyType) {
             resolve(true)
           }
         } catch (e) {
-          console.log('catch2e...');
-          console.log(e);
           let result = [...data[i], 'restore', proxy];
           ExportData(result, thread);
           win.webContents.send('total', i + 1, thread);
@@ -197,7 +183,7 @@ function isFileExists(thread) {
   return false;
 }
 
-ipc.on('start', async function (event, token, key1, key2, key3, key4, proxyType) {
+ipc.on('start', async function (event, key1, key2, key3, key4, proxyType) {
   electron.session.defaultSession.clearCache();
   let checkProxyFunc = checkKeyProxyTmp;
   if(proxyType === "tinsoftproxy") {
@@ -211,7 +197,7 @@ ipc.on('start', async function (event, token, key1, key2, key3, key4, proxyType)
   if (key1) {
     checkproxykey1 = await checkProxyFunc(key1)
     if (checkproxykey1) {
-      run('1', key1, token, proxyType).catch(e => console.log(e));
+      run('1', key1, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile1) {
     win.webContents.send('failProxyKey', 1);
@@ -220,7 +206,7 @@ ipc.on('start', async function (event, token, key1, key2, key3, key4, proxyType)
   if (key2) {
     checkproxykey2 = await checkProxyFunc(key2)
     if (checkproxykey2) {
-      run('2', key2, token, proxyType).catch(e => console.log(e));
+      run('2', key2, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile2) {
     win.webContents.send('failProxyKey', 2);
@@ -230,7 +216,7 @@ ipc.on('start', async function (event, token, key1, key2, key3, key4, proxyType)
   if (key3) {
     checkproxykey3 = await checkProxyFunc(key3)
     if (checkproxykey3) {
-      run('3', key3, token, proxyType).catch(e => console.log(e));
+      run('3', key3, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile3) {
     win.webContents.send('failProxyKey', 3);
@@ -240,7 +226,7 @@ ipc.on('start', async function (event, token, key1, key2, key3, key4, proxyType)
   if (key4) {
     checkproxykey4 = await checkProxyFunc(key4)
     if (checkproxykey4) {
-      run('4', key4, token, proxyType).catch(e => console.log(e));
+      run('4', key4, proxyType).catch(e => console.log(e));
     }
   } else if (!incompleteFile4) {
     win.webContents.send('failProxyKey', 4);

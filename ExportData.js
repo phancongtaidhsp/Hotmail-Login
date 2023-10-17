@@ -12,10 +12,9 @@ ExportData = (row,thread) => {
   var item = {
     'mail': row[0],
     'pass': row[1],
-    'newpass': row[2],
-    'status': row[3],
-    'proxy': row?.[4],
-    "note": row?.[5]
+    'status': row[2],
+    'proxy': row?.[3],
+    "note": row?.[4]
   };
 
   data.push(item);

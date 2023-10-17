@@ -17,7 +17,7 @@
   },
   "build": {
     "appId": "com.ipenywis.app",
-    "productName": "ID Apple - Change Password Hot Mail (2022. v1)",
+    "productName": "Hotmail - Facebook (2023. v1)",
     "target": "nsis",
     "nsis": {
       "allowToChangeInstallationDirectory": true,
@@ -33,7 +33,7 @@
     "child_process": "^1.0.2",
     "delay": "^4.4.0",
     "fs-extra": "^9.0.0",
-    "imap-simple": "^5.1.0",
+    "https": "^1.0.0",
     "lodash": "^4.17.21",
     "mailparser": "^3.5.0",
     "moment": "^2.29.4",

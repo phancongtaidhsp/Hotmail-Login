@@ -1,10 +1,16 @@
 const axios = require('axios');
 const moment = require('moment');
+const https = require('https');
+
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 const checkKeyProxy = async (key) => {
   let res = await axios({
     url: `http://proxy.tinsoftsv.com/api/getKeyInfo.php?key=${key}`,
     method: 'get',
+    httpsAgent: agent
   })
   if (res?.data) {
     if(res.data?.success) {
@@ -18,6 +24,7 @@ const checkCurrentIp = async (key) => {
   let res = await axios({
     url: `http://proxy.tinsoftsv.com/api/getProxy.php?key=${key}`,
     method: 'get',
+    httpsAgent: agent
   })
   if (res?.data) {
     if(res.data?.success) {
@@ -33,7 +40,8 @@ const checkCurrentIpTmp = async (key) => {
     method: 'post',
     data: {
       api_key: key
-    }
+    },
+    httpsAgent: agent
   }, )
   if (res.data?.data) {
     return {
@@ -50,6 +58,7 @@ const getNewIp = async (key) => {
     let res = await axios({
       url: `http://proxy.tinsoftsv.com/api/changeProxy.php?key=${key}&location=1`,
       method: 'get',
+      httpsAgent: agent
     })
     if (res.data) {
       if(res.data?.success && res.data?.timeout > 200) {
@@ -69,7 +78,8 @@ const getNewIpTmp = async (key) => {
       data: {
         api_key: key,
         location: 1
-      }
+      },
+      httpsAgent: agent
     })
     if (res.data?.data) {
       return {
@@ -87,15 +97,14 @@ const checkKeyProxyTmp = async (key) => {
     method: 'post',
     data: {
       api_key: key,
-    }
+    },
+    httpsAgent: agent
   })
   if (res.data?.data?.expired_at) {
     return new Date().getTime() < moment(res.data?.data?.expired_at, "hh:mm:ss DD/MM/YYYY").toDate().getTime()
   }
   return false
 }
-
-checkKeyProxyTmp("447d114747f9e874522eda49920b1332")
 
 module.exports = {
   checkKeyProxy,
