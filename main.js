@@ -95,10 +95,10 @@ const run = async function (thread, proxyKey, proxyType) {
       }
       await new Promise(async (resolve) => {
         let myTimeout = setTimeout(async () => {
-          console.log('>=900s');
+          console.log('>=180s');
           exec(cmdKill + browser_pid, (error, stdout, stderr) => { });
           resolve(true)
-        }, 900000);
+        }, 180000);
         try {
           let newProxy = await getNewIPFunction(proxyKey)
           if (proxy !== newProxy?.proxy) {
@@ -110,7 +110,7 @@ const run = async function (thread, proxyKey, proxyType) {
             headless: false,
             ignoreHTTPSErrors: true,
             ignoreDefaultArgs: ['--enable-automation'],
-            args: [`--window-size=800,650`, `--window-position=${position.x},${position.y}`,
+            args: [`--window-size=1200,650`, `--window-position=${position.x},${position.y}`,
               '--disable-infobars',
               '--disk-cache-size=0',
               '--ignore-certifcate-errors',
