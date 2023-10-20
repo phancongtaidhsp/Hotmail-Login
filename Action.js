@@ -19,11 +19,17 @@ const action = async (page_tmp, page, record) => {
   ])
 
   for (let index = 0; index < 10; index++) {
+    if (await page.$('input[type="password"]')) {
+      break;
+    }
     if (await page.$('#usernameError')) {
       return Promise.resolve('fail');
     }
-    if (await page.$('input[type="password"]')) {
-      break;
+    if (await page.$('#proofConfirmationText') && !await page.$('.confirmIdentity')) {
+      return Promise.resolve('fail');
+    }
+    if (await page.$('#iPollSessionProgress .c_dotsPlaying')) {
+      return Promise.resolve('fail');
     }
     await page.waitFor(3000);
   }
@@ -60,7 +66,7 @@ const action = async (page_tmp, page, record) => {
       if (await page.$('#proofConfirmationText') && !await page.$('.confirmIdentity')) {
         return Promise.resolve('fail');
       }
-      if (await page.$('#iPollSessionTitle') && !await page.$('.confirmIdentity')) {
+      if (await page.$('#iPollSessionProgress .c_dotsPlaying')) {
         return Promise.resolve('fail');
       }
       if (await page.$('#idTD_Error')) {
@@ -171,7 +177,7 @@ const action = async (page_tmp, page, record) => {
         if (await page_tmp.$('#proofConfirmationText') && !await page_tmp.$('.confirmIdentity')) {
           return Promise.resolve('fail');
         }
-        if (await page_tmp.$('#iPollSessionTitle') && !await page_tmp.$('.confirmIdentity')) {
+        if (await page_tmp.$('#iPollSessionProgress .c_dotsPlaying')) {
           return Promise.resolve('fail');
         }
         if (await page_tmp.$('#iLooksGood')) {
@@ -256,7 +262,7 @@ const action = async (page_tmp, page, record) => {
         if (await page.$('#proofConfirmationText') && !await page.$('.confirmIdentity')) {
           return Promise.resolve('fail');
         }
-        if (await page.$('#iPollSessionTitle') && !await page.$('.confirmIdentity')) {
+        if (await page.$('#iPollSessionProgress .c_dotsPlaying')) {
           return Promise.resolve('fail');
         }
         if (await page.$('#iProofList') && !await page.$('.confirmIdentity')) {
