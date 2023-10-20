@@ -57,6 +57,12 @@ const action = async (page_tmp, page, record) => {
       if (await page.$('#passwordError')) {
         return Promise.resolve('fail');
       }
+      if (await page.$('#proofConfirmationText') && !await page.$('.confirmIdentity')) {
+        return Promise.resolve('fail');
+      }
+      if (await page.$('#iPollSessionTitle') && !await page.$('.confirmIdentity')) {
+        return Promise.resolve('fail');
+      }
       if (await page.$('#idTD_Error')) {
         return Promise.resolve('fail');
       }
@@ -162,6 +168,12 @@ const action = async (page_tmp, page, record) => {
         if (await page_tmp.$('#iProofList') && !await page_tmp.$('.confirmIdentity')) {
           return Promise.resolve('fail');
         }
+        if (await page_tmp.$('#proofConfirmationText') && !await page_tmp.$('.confirmIdentity')) {
+          return Promise.resolve('fail');
+        }
+        if (await page_tmp.$('#iPollSessionTitle') && !await page_tmp.$('.confirmIdentity')) {
+          return Promise.resolve('fail');
+        }
         if (await page_tmp.$('#iLooksGood')) {
           await Promise.allSettled([
             page_tmp.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
@@ -239,6 +251,12 @@ const action = async (page_tmp, page, record) => {
         if (await page.$('#topLevelRegion')) break;
         if (await page.$('#searchBoxColumnContainerId input[id="topSearchInput"]')) break;
         if (await page.$('#idTD_Error')) {
+          return Promise.resolve('fail');
+        }
+        if (await page.$('#proofConfirmationText') && !await page.$('.confirmIdentity')) {
+          return Promise.resolve('fail');
+        }
+        if (await page.$('#iPollSessionTitle') && !await page.$('.confirmIdentity')) {
           return Promise.resolve('fail');
         }
         if (await page.$('#iProofList') && !await page.$('.confirmIdentity')) {
