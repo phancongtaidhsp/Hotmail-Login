@@ -31,6 +31,9 @@ const action = async (page_tmp, page, record) => {
     if (await page.$('#iPollSessionProgress .c_dotsPlaying')) {
       return Promise.resolve('fail');
     }
+    if (await page.$('#error_Info')) {
+      return Promise.resolve('fail');
+    }
     await page.waitFor(3000);
   }
 
@@ -69,6 +72,9 @@ const action = async (page_tmp, page, record) => {
       if (await page.$('#iPollSessionProgress .c_dotsPlaying')) {
         return Promise.resolve('fail');
       }
+      if (await page.$('#error_Info')) {
+        return Promise.resolve('fail');
+      }
       if (await page.$('#idTD_Error')) {
         return Promise.resolve('fail');
       }
@@ -88,6 +94,15 @@ const action = async (page_tmp, page, record) => {
         await Promise.allSettled([
           page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
           page.click('#idBtn_Back')
+        ])
+        await page.waitFor(2000);
+        isDone = true;
+        break;
+      }
+      if (await page.$('#iShowSkip')) {
+        await Promise.allSettled([
+          page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
+          page.click('#iShowSkip')
         ])
         await page.waitFor(2000);
         isDone = true;
@@ -171,6 +186,9 @@ const action = async (page_tmp, page, record) => {
         if (await page_tmp.$('#idTD_Error')) {
           return Promise.resolve('fail');
         }
+        if (await page_tmp.$('#error_Info')) {
+          return Promise.resolve('fail');
+        }
         if (await page_tmp.$('#iProofList') && !await page_tmp.$('.confirmIdentity')) {
           return Promise.resolve('fail');
         }
@@ -179,6 +197,12 @@ const action = async (page_tmp, page, record) => {
         }
         if (await page_tmp.$('#iPollSessionProgress .c_dotsPlaying')) {
           return Promise.resolve('fail');
+        }
+        if (await page_tmp.$('#iShowSkip')) {
+          await Promise.allSettled([
+            page_tmp.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
+            page_tmp.click('#iShowSkip')
+          ])
         }
         if (await page_tmp.$('#iLooksGood')) {
           await Promise.allSettled([
@@ -240,23 +264,30 @@ const action = async (page_tmp, page, record) => {
 
     await page_tmp.keyboard.press('Enter')
 
+    await page_tmp.waitFor(5000);
+
     for (let index = 0; index < 10; index++) {
-      if (await page_tmp.$('.ms-Modal-scrollableContent .ms-Dialog-actions .ms-Button--primary')) return Promise.resolve('restore');
-      if (await page_tmp.$('.ms-Modal-scrollableContent .pRd6S .ms-Button--primary')) return Promise.resolve('restore');
-      const facebook = await page_tmp.$('span[title="advertise-noreply@support.facebook.com"]');
-      if (facebook) return Promise.resolve('done');
-      let valueInput = await page.evaluate(() => {
-        return document.querySelector('#searchBoxColumnContainerId input[id="topSearchInput"]').value;
+      let valueInput = await page_tmp.evaluate(() => {
+        return Promise.resolve(document.querySelector('#searchBoxColumnContainerId input[id="topSearchInput"]')?.value);
       });
-      if (await page_tmp.$('.ckaDq #EmptyState_MainMessage') && valueInput == "Facebook Ads Team") return Promise.resolve('fail');
+      if(valueInput == "Facebook Ads Team") {
+        const facebook = await page_tmp.$('span[title="advertise-noreply@support.facebook.com"]');
+        if (facebook) {
+          return Promise.resolve('done');
+        } else if (await page_tmp.$('.ckaDq #EmptyState_MainMessage')) return Promise.resolve('fail');
+      }
       await page_tmp.waitFor(1000);
     }
+    return Promise.resolve('fail');
   } else if (isDone) {
     for (let index = 0; index < 10; index++) {
       try {
         if (await page.$('#topLevelRegion')) break;
         if (await page.$('#searchBoxColumnContainerId input[id="topSearchInput"]')) break;
         if (await page.$('#idTD_Error')) {
+          return Promise.resolve('fail');
+        }
+        if (await page_tmp.$('#error_Info')) {
           return Promise.resolve('fail');
         }
         if (await page.$('#proofConfirmationText') && !await page.$('.confirmIdentity')) {
@@ -272,6 +303,12 @@ const action = async (page_tmp, page, record) => {
           await Promise.allSettled([
             page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
             page.click('#iLooksGood')
+          ])
+        }
+        if (await page.$('#iShowSkip')) {
+          await Promise.allSettled([
+            page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
+            page.click('#iShowSkip')
           ])
         }
         if (await page.$('#StickyFooter button span')) {
@@ -330,17 +367,22 @@ const action = async (page_tmp, page, record) => {
 
     await page.keyboard.press('Enter')
 
+    await page.waitFor(5000);
+
     for (let index = 0; index < 10; index++) {
-      if (await page.$('.ms-Modal-scrollableContent .ms-Dialog-actions .ms-Button--primary')) return Promise.resolve('restore');
-      if (await page.$('.ms-Modal-scrollableContent .pRd6S .ms-Button--primary')) return Promise.resolve('restore');
-      const facebook = await page.$('span[title="advertise-noreply@support.facebook.com"]');
-      if (facebook) return Promise.resolve('done');
       let valueInput = await page.evaluate(() => {
-        return document.querySelector('#searchBoxColumnContainerId input[id="topSearchInput"]').value;
+        return Promise.resolve(document.querySelector('#searchBoxColumnContainerId input[id="topSearchInput"]')?.value);
       });
-      if (await page.$('.ckaDq #EmptyState_MainMessage') && valueInput == "Facebook Ads Team") return Promise.resolve('fail');
+      if(valueInput == "Facebook Ads Team") {
+        const facebook = await page.$('span[title="advertise-noreply@support.facebook.com"]');
+        if (facebook) {
+          return Promise.resolve('done');
+        }
+        else if (await page.$('.ckaDq #EmptyState_MainMessage')) return Promise.resolve('fail');
+      }
       await page.waitFor(1000);
     }
+    return Promise.resolve('fail')
   }
 
   return Promise.resolve('restore')
