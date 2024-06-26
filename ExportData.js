@@ -14,7 +14,8 @@ ExportData = (row,thread) => {
     'pass': row[1],
     'status': row[2],
     'proxy': row?.[3],
-    "note": row?.[4]
+    'phone': row?.[4],
+    'note': row?.[5]
   };
 
   data.push(item);

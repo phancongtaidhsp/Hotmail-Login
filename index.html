@@ -23,18 +23,16 @@
     <input type="button" id="btn-createfile" value="Upload files">
     <div class="row">
       <div class="col">
-        <input type="radio" id="tinsoftproxy" name="proxy" value="tinsoftproxy">
-        <label for="tinsoftproxy">tinsoftproxy</label><br>
-        <input type="radio" id="tmproxy" name="proxy" value="tmproxy">
-        <label for="tmproxy">tmproxy</label><br>
+        <input type="input" id="filepathproxy" placeholder="Đường dẫn file proxy">
+      </div>
+      <div class="col">
+        <input type="input" id="filepathphone" placeholder="Đường dẫn file số điện thoại">
       </div>
     </div>
     <div class="mr"></div>
     <div class="row">
       <div class="col">
         <h3 style="margin: 0;">Màn 1:</h3>
-        <p style="margin: 0;">Proxy key1: </p>
-        <input type="text" id="proxyKey1">
         <div class="step">
           <span>Success: </span>
           <span id="step1">0</span>
@@ -46,8 +44,6 @@
       </div>
       <div class="col">
         <h3 style="margin: 0;">Màn 2:</h3>
-        <p style="margin: 0;">Proxy key2: </p>
-        <input type="text" id="proxyKey2">
         <div class="step">
           <span>Success: </span>
           <span id="step2">0</span>
@@ -62,8 +58,6 @@
     <div class="row">
       <div class="col">
         <h3 style="margin: 0;">Màn 3:</h3>
-        <p style="margin: 0;">Proxy key3: </p>
-        <input type="text" id="proxyKey3">
         <div class="step">
           <span>Success: </span>
           <span id="step3">0</span>
@@ -76,8 +70,6 @@
 
       <div class="col">
         <h3 style="margin: 0;">Màn 4:</h3>
-        <p style="margin: 0;">Proxy key4: </p>
-        <input type="text" id="proxyKey4">
         <div class="step">
           <span>Success: </span>
           <span id="step4">0</span>
@@ -91,7 +83,8 @@
   </div>
   <ul class="info">
     <li>Không được mở các file excel khi chạy. (file data, output, ketqua, restoreimap)</li>
-    <li>file data format theo 'mail' 'pass' 'newpass'</li>
+    <li>file data format theo 'mail' 'pass'</li>
+    <li>file số điện thoại format theo +1xxxxxx----http://... (bắt buộc 4 dấu ---- giữa sđt và link api)</li>
     <li>Click "Xuất kết quả" để xuất ra những con đã chạy thành công.</li>
   </ul>
   <script>

@@ -13,8 +13,7 @@ const getData = require('./spreadsheet');
 const GetTotal = require('./GetTotal');
 const ExportData = require('./ExportData');
 const exportResult = require('./Result');
-const { checkKeyProxyTmp, getNewIpTmp, checkKeyProxy, getNewIp } = require('./proxy');
-var exec =  require('child_process').exec;
+var exec = require('child_process').exec;
 
 
 let flagPause = false;
@@ -45,11 +44,11 @@ app.on('window-all-closed', () => {
   }
 })
 
-const run = async function (thread, proxyKey, proxyType) {
-  let proxy = null;
+const run = async function (thread, proxies, phones) {
+  let proxyIndex = 0;
+  let phoneIndex = 0;
   let browser = null;
   let page = null;
-  let page_tmp = null;
   let incompleteFile = isFileExists(thread);
   if (incompleteFile) {
     win.webContents.send('checkfiles', incompleteFile);
@@ -80,11 +79,7 @@ const run = async function (thread, proxyKey, proxyType) {
       y: 500
     }
   }
-  let getNewIPFunction = getNewIpTmp;
-  if(proxyType === "tinsoftproxy") {
-    getNewIPFunction = getNewIp;
-  }
-  executableBrowserPath = 'C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe'
+  executableBrowserPath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
   let browser_pid = null;
   let cmdKill = 'taskkill /F /T /PID '
   if (st < end) {
@@ -93,6 +88,12 @@ const run = async function (thread, proxyKey, proxyType) {
       if (flagPause) {
         break;
       }
+      if (!proxies[proxyIndex]) {
+        proxyIndex = 0;
+      }
+      if (!phones[phoneIndex]) {
+        phoneIndex = 0;
+      }
       await new Promise(async (resolve) => {
         let myTimeout = setTimeout(async () => {
           console.log('>=180s');
@@ -100,12 +101,8 @@ const run = async function (thread, proxyKey, proxyType) {
           resolve(true)
         }, 180000);
         try {
-          let newProxy = await getNewIPFunction(proxyKey)
-          if (proxy !== newProxy?.proxy) {
-            proxy = newProxy?.proxy
-          }
           browser = await puppeteer.launch({
-            executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe',
+            executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
             // executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
             headless: false,
             ignoreHTTPSErrors: true,
@@ -115,32 +112,34 @@ const run = async function (thread, proxyKey, proxyType) {
               '--disk-cache-size=0',
               '--ignore-certifcate-errors',
               '--ignore-certifcate-errors-spki-list',
-              `--proxy-server=${proxy}`
+              `--proxy-server=${proxies[proxyIndex]}`
             ],
           });
           browser_pid = browser.process().pid;
           page = await browser.newPage();
-          page_tmp = await browser.newPage();
           try {
-            let obj = await Action(page_tmp, page, data[i]);
+            let obj = await Action(page, data[i], phones[phoneIndex]);
             if (Array.isArray(obj) && obj?.length > 0) {
-              let result = [...data[i], 'done', proxy, ...obj];
+              let result = [...data[i], 'done', proxies[proxyIndex], phones[phoneIndex], ...obj];
               ExportData(result, thread);
               win.webContents.send('total', i + 1, thread);
               win.webContents.send('step', 1, thread);
               await browser.close();
             } else {
               if (!obj) obj = 'restore'
-              let result = [...data[i], obj, proxy];
+              let result = [...data[i], obj, proxies[proxyIndex], phones[phoneIndex]];
               ExportData(result, thread);
               win.webContents.send('total', i + 1, thread);
+              if (obj === 'done') {
+                win.webContents.send('step', 1, thread);
+              }
               await browser.close();
             }
             clearTimeout(myTimeout)
             resolve(true)
           } catch (error) {
             console.log(error)
-            let result = [...data[i], 'restore', proxy];
+            let result = [...data[i], 'restore', proxies[proxyIndex], phones[phoneIndex]];
             ExportData(result, thread);
             win.webContents.send('total', i + 1, thread);
             await browser.close();
@@ -148,7 +147,7 @@ const run = async function (thread, proxyKey, proxyType) {
             resolve(true)
           }
         } catch (e) {
-          let result = [...data[i], 'restore', proxy];
+          let result = [...data[i], 'restore', proxies[proxyIndex], phones[phoneIndex]];
           ExportData(result, thread);
           win.webContents.send('total', i + 1, thread);
           await browser.close();
@@ -158,6 +157,8 @@ const run = async function (thread, proxyKey, proxyType) {
         clearTimeout(myTimeout)
         resolve(true)
       })
+      proxyIndex++;
+      phoneIndex++;
     }
     await browser.close();
   }
@@ -183,54 +184,29 @@ function isFileExists(thread) {
   return false;
 }
 
-ipc.on('start', async function (event, key1, key2, key3, key4, proxyType) {
+ipc.on('start', async function (event, pathFileProxy, pathFilePhone) {
   electron.session.defaultSession.clearCache();
-  let checkProxyFunc = checkKeyProxyTmp;
-  if(proxyType === "tinsoftproxy") {
-    checkProxyFunc = checkKeyProxy;
-  }
-  let checkproxykey1, checkproxykey2, checkproxykey3, checkproxykey4;
-  let incompleteFile1 = isFileExists('1');
-  let incompleteFile2 = isFileExists('2');
-  let incompleteFile3 = isFileExists('3');
-  let incompleteFile4 = isFileExists('4');
-  if (key1) {
-    checkproxykey1 = await checkProxyFunc(key1)
-    if (checkproxykey1) {
-      run('1', key1, proxyType).catch(e => console.log(e));
+  let splitNumber = 0;
+  for (let i = 1; i <= 4; i++) {
+    if (!isFileExists(`${i}`)) {
+      splitNumber++;
     }
-  } else if (!incompleteFile1) {
-    win.webContents.send('failProxyKey', 1);
-    return
-  }
-  if (key2) {
-    checkproxykey2 = await checkProxyFunc(key2)
-    if (checkproxykey2) {
-      run('2', key2, proxyType).catch(e => console.log(e));
-    }
-  } else if (!incompleteFile2) {
-    win.webContents.send('failProxyKey', 2);
-    return
   }
 
-  if (key3) {
-    checkproxykey3 = await checkProxyFunc(key3)
-    if (checkproxykey3) {
-      run('3', key3, proxyType).catch(e => console.log(e));
-    }
-  } else if (!incompleteFile3) {
-    win.webContents.send('failProxyKey', 3);
-    return
-  }
+  if (splitNumber) {
+    let listProxy = fs.readFileSync(pathFileProxy, 'utf8');
+    listProxy = listProxy.split(/\r?\n/);
+    let numberSplitProxy = Math.ceil(listProxy.length / splitNumber);
 
-  if (key4) {
-    checkproxykey4 = await checkProxyFunc(key4)
-    if (checkproxykey4) {
-      run('4', key4, proxyType).catch(e => console.log(e));
+    let listPhone = fs.readFileSync(pathFilePhone, 'utf8');
+    listPhone = listPhone.split(/\r?\n/);
+    let numberSplitPhone = Math.ceil(listPhone.length / splitNumber);
+
+    for (let i = 1; i <= splitNumber; i++) {
+      let proxies = listProxy.slice(numberSplitProxy*(i-1), numberSplitProxy*i);
+      let phones = listPhone.slice(numberSplitPhone*(i-1), numberSplitPhone*i);
+      run(`${i}`, proxies, phones).catch(e => console.log(e));
     }
-  } else if (!incompleteFile4) {
-    win.webContents.send('failProxyKey', 4);
-    return
   }
 
 })

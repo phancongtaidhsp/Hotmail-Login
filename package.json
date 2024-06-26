@@ -37,6 +37,7 @@
     "lodash": "^4.17.21",
     "mailparser": "^3.5.0",
     "moment": "^2.29.4",
+    "promise.any": "^2.0.6",
     "puppeteer": "^13.0.1",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-recaptcha": "^3.6.6",

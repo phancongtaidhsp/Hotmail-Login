@@ -5,19 +5,21 @@ document.getElementById('pause').addEventListener('click', function () {
   ipc.send('pause');
 });
 document.getElementById('start').addEventListener('click', function () {
-  var radios = document.getElementsByName('proxy');
-  var proxyType = "tinsoftproxy"
-  for (var i = 0, length = radios.length; i < length; i++) {
-    if (radios[i].checked) {
-      proxyType = radios[i].value;
-      break;
-    }
+  let pathFilePhone = document.getElementById('filepathphone').value
+  let pathFileProxy = document.getElementById('filepathproxy').value
+  if(pathFilePhone[0] == '"') {
+    pathFilePhone = pathFilePhone.substring(1)
   }
-  let key1 = document.getElementById('proxyKey1').value
-  let key2 = document.getElementById('proxyKey2').value
-  let key3 = document.getElementById('proxyKey3').value
-  let key4 = document.getElementById('proxyKey4').value
-  ipc.send('start', key1, key2, key3, key4, proxyType);
+  if(pathFilePhone[pathFilePhone.length - 1] == '"') {
+    pathFilePhone = pathFilePhone.substring(0, pathFilePhone.length - 1)
+  }
+  if(pathFileProxy[0] == '"') {
+    pathFileProxy = pathFileProxy.substring(1)
+  }
+  if(pathFileProxy[pathFileProxy.length - 1] == '"') {
+    pathFileProxy = pathFileProxy.substring(0, pathFileProxy.length - 1)
+  }
+  ipc.send('start', pathFileProxy, pathFilePhone);
 });
 document.getElementById('result').addEventListener('click', function () {
   ipc.send('result');
