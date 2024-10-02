@@ -1,8 +1,8 @@
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 
-document.getElementById('pause').addEventListener('click', function () {
-  ipc.send('pause');
+document.getElementById('stop').addEventListener('click', function () {
+  ipc.send('stop');
 });
 document.getElementById('start').addEventListener('click', function () {
   let pathFilePhone = document.getElementById('filepathphone').value
@@ -21,10 +21,4 @@ document.getElementById('start').addEventListener('click', function () {
   }
   ipc.send('start', pathFileProxy, pathFilePhone);
 });
-document.getElementById('result').addEventListener('click', function () {
-  ipc.send('result');
-})
 
-document.getElementById('btn-createfile').addEventListener('click', function () {
-  ipc.send('uploadfile');
-})
