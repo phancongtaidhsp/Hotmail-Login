@@ -42,8 +42,11 @@
       document.getElementById('thongbao').className = `alert ${type}`;
       setTimeout(() => document.getElementById('thongbao').classList.add('hidden'), 3000);
     }
-    ipcRenderer.on('failProxyKey', function (e, number) {
-      showThongBao('alert-danger', `proxy key ${number} không hợp lệ`)
+    ipcRenderer.on('failProxyKey', function (e, keyProxy) {
+      showThongBao('alert-danger', `proxy key ${keyProxy} không hợp lệ`)
+    })
+    ipcRenderer.on('failInput', function (e) {
+      showThongBao('alert-danger', `Data không hợp lệ`)
     })
 
   </script>

@@ -8,9 +8,10 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const Action = require('./Action');
+const { checkKeyProxyTmp, getNewIpTmp } = require('./proxy');
 
-let flagStop = false;
 let win;
+let browerList = [null, null, null, null, null];
 
 function createWindow() {
   // Create the browser window.
@@ -37,36 +38,41 @@ app.on('window-all-closed', () => {
   }
 })
 
-const run = async function (thread, proxy) {
-  let browser = null;
+const run = async function (thread, data, proxyKey) {
   let page = null;
+  let { proxy } = await getNewIpTmp(proxyKey)
   let position = {
     x: 0,
     y: 0
   }
-  if (thread === '2') {
+  if (thread == '2') {
     position = {
-      x: 0,
-      y: 500
-    }
-  } else if (thread === '3') {
-    position = {
-      x: 800,
+      x: 300,
       y: 0
     }
-  } else if (thread === '4') {
+  } else if (thread == '3') {
     position = {
-      x: 800,
-      y: 500
+      x: 600,
+      y: 0
+    }
+  } else if (thread == '4') {
+    position = {
+      x: 900,
+      y: 0
+    }
+  } else if (thread == '5') {
+    position = {
+      x: 1200,
+      y: 0
     }
   }
-  browser = await puppeteer.launch({
+  browerList[thread] = await puppeteer.launch({
     executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
     // executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     headless: false,
     ignoreHTTPSErrors: true,
     ignoreDefaultArgs: ['--enable-automation'],
-    args: [`--window-size=1200,650`, `--window-position=${position.x},${position.y}`,
+    args: [`--window-size=500,600`, `--window-position=${position.x},${position.y}`,
       '--disable-infobars',
       '--disk-cache-size=0',
       '--ignore-certifcate-errors',
@@ -74,18 +80,50 @@ const run = async function (thread, proxy) {
       `--proxy-server=${proxy}`
     ],
   });
-  context = await browser.createIncognitoBrowserContext();
+  context = await browerList[thread].createIncognitoBrowserContext();
   page = await context.newPage();
-  await Action(page, ["bloodaroundfanta2777844@hotmail.com", "Limong47@"]);
+  await Action(page, data);
 }
 
 
-ipc.on('start', async function (event, dataText, proxyKeyText) {
+ipc.on('start', async function (event, dataText, proxyText) {
   electron.session.defaultSession.clearCache();
-  flagStop = false;
+  let dataArr = dataText.split("\n");
+  let proxyArr = proxyText.split("\n");
+  let findIncorrectData = dataArr.find(t => !t.includes("|"));
+  if (findIncorrectData) {
+    win.webContents.send('failInput');
+    return;
+  }
+  for (let keyProxy of proxyArr) {
+    let isValidProxyKey = await checkKeyProxyTmp(keyProxy);
+    if (!isValidProxyKey) {
+      win.webContents.send('failProxyKey', keyProxy);
+      return;
+    }
+  }
+
+  if (dataArr.length > 0 && dataArr.length <= 5 && proxyArr.length > 0) {
+    let proxyIndex = 0;
+    for (let i = 0; i < dataArr.length; i++) {
+      let proxy = proxyArr[proxyIndex];
+      run(i+3, dataArr[i].split("|"), proxy);
+      if (proxyIndex + 1 < proxyArr.length) {
+        proxyIndex++;
+      } else {
+        proxyIndex = 0;
+      }
+    }
+  } else {
+    win.webContents.send('failInput');
+  }
 })
 
-ipc.on('stop', function (event) {
-  flagStop = true;
-  win.webContents.send('step', 0);
+ipc.on('reset', async function (event) {
+  for (const browser of browerList) {
+    if (browser) {
+      await browser.close();
+    }
+  }
+  browerList = [null, null, null, null, null];
 })

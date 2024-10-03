@@ -1,24 +1,12 @@
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 
-document.getElementById('stop').addEventListener('click', function () {
-  ipc.send('stop');
+document.getElementById('reset').addEventListener('click', function () {
+  ipc.send('reset');
 });
 document.getElementById('start').addEventListener('click', function () {
-  let pathFilePhone = document.getElementById('filepathphone').value
-  let pathFileProxy = document.getElementById('filepathproxy').value
-  if(pathFilePhone[0] == '"') {
-    pathFilePhone = pathFilePhone.substring(1)
-  }
-  if(pathFilePhone[pathFilePhone.length - 1] == '"') {
-    pathFilePhone = pathFilePhone.substring(0, pathFilePhone.length - 1)
-  }
-  if(pathFileProxy[0] == '"') {
-    pathFileProxy = pathFileProxy.substring(1)
-  }
-  if(pathFileProxy[pathFileProxy.length - 1] == '"') {
-    pathFileProxy = pathFileProxy.substring(0, pathFileProxy.length - 1)
-  }
-  ipc.send('start', pathFileProxy, pathFilePhone);
+  let dataText = document.getElementById('datatext').value || "dakmak847789352@hotmail.com|Limong47@\nbloodaroundfanta2777844@hotmail.com|Limong47@\ntheendstory7910616@hotmail.com|Limong47@";
+  let proxyText = document.getElementById('proxytext').value || "f1447450d533ffc3891fdfa78be9a343";
+  ipc.send('start', dataText, proxyText);
 });
 
