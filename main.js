@@ -107,7 +107,7 @@ ipc.on('start', async function (event, dataText, proxyText) {
     let proxyIndex = 0;
     for (let i = 0; i < dataArr.length; i++) {
       let proxy = proxyArr[proxyIndex];
-      run(i+3, dataArr[i].split("|"), proxy);
+      run(i+1, dataArr[i].split("|"), proxy);
       if (proxyIndex + 1 < proxyArr.length) {
         proxyIndex++;
       } else {
