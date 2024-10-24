@@ -40,7 +40,7 @@ app.on('window-all-closed', () => {
 
 const run = async function (thread, data, proxyKey) {
   let page = null;
-  let { proxy } = await getNewIpTmp(proxyKey)
+  let { proxy, username, password } = await getNewIpTmp(proxyKey)
   let position = {
     x: 0,
     y: 0
@@ -82,6 +82,10 @@ const run = async function (thread, data, proxyKey) {
   });
   context = await browerList[thread].createIncognitoBrowserContext();
   page = await context.newPage();
+  await page.authenticate({
+    username,
+    password,
+  });
   await Action(page, data);
 }
 
