@@ -8,7 +8,7 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const Action = require('./Action');
-const { checkKeyProxyTmp, getNewIpTmp } = require('./proxy');
+const { checkKeyProxyTmp, getNewIpTmp, checkKeyProxy, getNewIp } = require('./proxy');
 
 let win;
 let browerList = [null, null, null, null, null];
@@ -38,9 +38,13 @@ app.on('window-all-closed', () => {
   }
 })
 
-const run = async function (thread, data, proxyKey) {
+const run = async function (thread, data, proxyType, proxyKey) {
   let page = null;
-  let { proxy, username, password } = await getNewIpTmp(proxyKey)
+  let getNewIPFunction = getNewIpTmp;
+  if (proxyType === "shoplikeproxy") {
+    getNewIPFunction = getNewIp;
+  }
+  let { proxy, username, password } = await getNewIPFunction(proxyKey);
   let position = {
     x: 0,
     y: 0
@@ -82,15 +86,17 @@ const run = async function (thread, data, proxyKey) {
   });
   context = await browerList[thread].createIncognitoBrowserContext();
   page = await context.newPage();
-  await page.authenticate({
-    username,
-    password,
-  });
+  if (username && password) {
+    await page.authenticate({
+      username,
+      password,
+    });
+  }
   await Action(page, data);
 }
 
 
-ipc.on('start', async function (event, dataText, proxyText) {
+ipc.on('start', async function (event, dataText, proxyType, proxyText) {
   electron.session.defaultSession.clearCache();
   let dataArr = dataText.split("\n");
   let proxyArr = proxyText.split("\n");
@@ -99,8 +105,12 @@ ipc.on('start', async function (event, dataText, proxyText) {
     win.webContents.send('failInput');
     return;
   }
+  let checkProxyFunc = checkKeyProxyTmp;
+  if (proxyType == "shoplikeproxy") {
+    checkProxyFunc = checkKeyProxy;
+  }
   for (let keyProxy of proxyArr) {
-    let isValidProxyKey = await checkKeyProxyTmp(keyProxy);
+    let isValidProxyKey = await checkProxyFunc(keyProxy);
     if (!isValidProxyKey) {
       win.webContents.send('failProxyKey', keyProxy);
       return;
@@ -111,7 +121,7 @@ ipc.on('start', async function (event, dataText, proxyText) {
     let proxyIndex = 0;
     for (let i = 0; i < dataArr.length; i++) {
       let proxy = proxyArr[proxyIndex];
-      run(i+1, dataArr[i].split("|"), proxy);
+      run(i+1, dataArr[i].split("|"), proxyType, proxy);
       if (proxyIndex + 1 < proxyArr.length) {
         proxyIndex++;
       } else {

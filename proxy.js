@@ -8,28 +8,24 @@ const agent = new https.Agent({
 
 const checkKeyProxy = async (key) => {
   let res = await axios({
-    url: `http://proxy.tinsoftsv.com/api/getKeyInfo.php?key=${key}`,
+    url: `http://proxy.shoplike.vn/Api/getCurrentProxy?access_token=${key}`,
     method: 'get',
     httpsAgent: agent
   })
-  if (res?.data) {
-    if(res.data?.success) {
-      return true
-    }
+  if (res?.data?.status == "success" || res?.data?.data?.mess?.includes("proxy")) {
+    return true
   }
   return false
 }
 
 const checkCurrentIp = async (key) => {
   let res = await axios({
-    url: `http://proxy.tinsoftsv.com/api/getProxy.php?key=${key}`,
+    url: `http://proxy.shoplike.vn/Api/getCurrentProxy?access_token=${key}`,
     method: 'get',
     httpsAgent: agent
   })
-  if (res?.data) {
-    if(res.data?.success) {
-      return res.data
-    }
+  if (res?.data?.status == "success") {
+    return res?.data?.data;
   }
   return false
 }
@@ -53,20 +49,16 @@ const checkCurrentIpTmp = async (key) => {
 }
 
 const getNewIp = async (key) => {
-  let checkIp = await checkCurrentIp(key);
-  if(checkIp?.next_change <= 0 || !checkIp?.success){
-    let res = await axios({
-      url: `http://proxy.tinsoftsv.com/api/changeProxy.php?key=${key}&location=1`,
-      method: 'get',
-      httpsAgent: agent
-    })
-    if (res.data) {
-      if(res.data?.success && res.data?.timeout > 200) {
-        return res.data
-      }
-    }
+  let res = await axios({
+    url: `http://proxy.shoplike.vn/Api/getNewProxy?access_token=${key}`,
+    method: 'get',
+    httpsAgent: agent
+  })
+  if (res?.data?.status == "success") {
+    return res?.data?.data;
+  } else {
+    return await checkCurrentIp(key);
   }
-  return checkIp
 }
 
 const getNewIpTmp = async (key) => {
