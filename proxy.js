@@ -12,7 +12,8 @@ const checkKeyProxy = async (key) => {
     method: 'get',
     httpsAgent: agent
   })
-  if (res?.data?.status == "success" || res?.data?.data?.mess?.includes("proxy")) {
+  console.log(res?.data);
+  if (res?.data?.status == "success" || res?.data?.mess?.includes("proxy")) {
     return true
   }
   return false
@@ -97,6 +98,7 @@ const checkKeyProxyTmp = async (key) => {
   }
   return false
 }
+
 
 module.exports = {
   checkKeyProxy,
