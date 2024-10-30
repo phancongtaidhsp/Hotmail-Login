@@ -12,7 +12,6 @@ const checkKeyProxy = async (key) => {
     method: 'get',
     httpsAgent: agent
   })
-  console.log(res?.data);
   if (res?.data?.status == "success" || res?.data?.mess?.includes("proxy")) {
     return true
   }
