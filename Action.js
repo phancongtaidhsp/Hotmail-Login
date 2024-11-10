@@ -48,7 +48,8 @@ const action = async (page, record) => {
     page.waitForSelector('#idTD_Error'),
     page.waitForSelector('#iProofList'),
     page.waitForSelector('#kmsiTitle'),
-    page.waitForSelector('#iShowSkip')
+    page.waitForSelector('#iShowSkip'),
+    page.waitForSelector("#acceptButton")
   ])
 
   await page.waitFor(2000);
@@ -62,8 +63,36 @@ const action = async (page, record) => {
     page.waitForSelector('#idTD_Error'),
     page.waitForSelector('#iProofList'),
     page.waitForSelector('#kmsiTitle'),
-    page.waitForSelector('#iShowSkip')
+    page.waitForSelector('#iShowSkip'),
+    page.waitForSelector("#acceptButton")
   ])
+
+  let acceptBtn = await page.$("#acceptButton");
+  if(acceptBtn) {
+    await acceptBtn.click();
+  }
+
+  try {
+    let frameHandle = await page.waitForSelector("#unified_consent_dialog_frame", { timeout: 120000 })
+    let iFrame = await frameHandle.contentFrame();
+    await iFrame.waitFor(1000);
+    await iFrame.waitFor("#unified-consent-continue-button");
+    await iFrame.waitFor(1000);
+    await iFrame.evaluate(() => {
+      window.scrollTo(0, 9999);
+    });
+    await iFrame.waitFor(1000);
+    await iFrame.click("#unified-consent-continue-button");
+    await iFrame.waitFor(1000);
+    await iFrame.evaluate(() => {
+      window.scrollTo(0, 9999);
+    });
+    await iFrame.waitFor(1000);
+    await iFrame.click("#unified-consent-continue-button");
+  } catch (error) {
+    console.log(error);
+    console.log("There is no A quick note about your Microsoft account")
+  }
 
 };
 module.exports = action;
