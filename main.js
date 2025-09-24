@@ -39,7 +39,7 @@ app.on('window-all-closed', () => {
 })
 
 const run = async function (thread, data, proxyType, proxyKey) {
-  let page = null;
+  let pageApple = null;
   let getNewIPFunction = getNewIpTmp;
   if (proxyType === "shoplikeproxy") {
     getNewIPFunction = getNewIp;
@@ -85,14 +85,18 @@ const run = async function (thread, data, proxyType, proxyKey) {
     ],
   });
   context = await browerList[thread].createIncognitoBrowserContext();
-  page = await context.newPage();
+  pageApple = await context.newPage();
   if (username && password) {
-    await page.authenticate({
+    await pageApple.authenticate({
       username,
       password,
     });
   }
-  await Action(page, data);
+  await Action(pageApple, data);
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
@@ -105,17 +109,6 @@ ipc.on('start', async function (event, dataText, proxyType, proxyText) {
     win.webContents.send('failInput');
     return;
   }
-  let checkProxyFunc = checkKeyProxyTmp;
-  if (proxyType == "shoplikeproxy") {
-    checkProxyFunc = checkKeyProxy;
-  }
-  for (let keyProxy of proxyArr) {
-    let isValidProxyKey = await checkProxyFunc(keyProxy);
-    if (!isValidProxyKey) {
-      win.webContents.send('failProxyKey', keyProxy);
-      return;
-    }
-  }
 
   if (dataArr.length > 0 && dataArr.length <= 5 && proxyArr.length > 0) {
     let proxyIndex = 0;
@@ -127,6 +120,7 @@ ipc.on('start', async function (event, dataText, proxyType, proxyText) {
       } else {
         proxyIndex = 0;
       }
+      await delay(500);
     }
   } else {
     win.webContents.send('failInput');
