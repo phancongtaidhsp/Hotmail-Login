@@ -17,6 +17,25 @@ const action = async (page, record) => {
 
   await page.click('button[type="submit"]');
 
+  await page.waitFor(2000);
+
+  await promiseAny([
+    page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
+    page.waitForSelector('input[type="password"]'),
+    page.waitForSelector('#proof-confirmation-email-input'),
+    page.waitForSelector('#usernameError'),
+    page.waitForSelector('#proofConfirmationText'),
+    page.waitForSelector('#iPollSessionProgress'),
+    page.waitForSelector('#error_Info'),
+  ])
+
+  await page.waitFor(2000);
+
+  let [usepassBtn] = await page.$x("//span[normalize-space(text())='Use your password']");
+  if (usepassBtn) {
+    await usepassBtn.click();
+  }
+
   await promiseAny([
     page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 10000 }),
     page.waitForSelector('input[type="password"]'),
@@ -68,7 +87,7 @@ const action = async (page, record) => {
   ])
 
   let acceptBtn = await page.$("#acceptButton");
-  if(acceptBtn) {
+  if (acceptBtn) {
     await acceptBtn.click();
   }
 
